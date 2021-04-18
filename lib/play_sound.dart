@@ -8,19 +8,20 @@ const SND_PCM_FORMAT_S16_LE = 2;
 
 final alsa = a.ALSA(DynamicLibrary.open('libasound.so.2'));
 
-Future<void> playSound(List<String> args) async {
-  print('play: ${args[0]}');
+final _debug = false;
 
+Future<void> play(
+  Stream<List<int>> audioStream,
+  int rate,
+  int channels,
+  int seconds,
+) async {
   final pcmHandlePtr = calloc<Pointer<a.snd_pcm_>>();
 
   // https://github.com/dart-lang/ffigen/issues/72#issuecomment-672060509
   final name = 'default'.toNativeUtf8().cast<Int8>();
   final stream = 0;
   final mode = 0;
-
-  final rate = int.parse(args[0]);
-  final channels = int.parse(args[1]);
-  final seconds = int.parse(args[2]);
 
   final ratePtr = calloc<Uint32>();
   ratePtr.value = rate;
@@ -35,8 +36,7 @@ Future<void> playSound(List<String> args) async {
   final openResult = alsa.snd_pcm_open(pcmHandlePtr, name, stream, mode);
   if (openResult < 0) {
     final errMesg = alsa.snd_strerror(openResult).cast<Utf8>().toDartString();
-    print('ERROR: Can\`t open $name PCM device: $errMesg');
-    return;
+    throw Exception('ERROR: Can\`t open $name PCM device: $errMesg');
   }
 
   var paramsPtr = calloc<Pointer<a.snd_pcm_hw_params_>>();
@@ -72,15 +72,15 @@ Future<void> playSound(List<String> args) async {
   /* Write parameters */
   result = alsa.snd_pcm_hw_params(pcmHandlePtr.value, paramsPtr.value);
   if (result < 0) {
-    print(
+    throw Exception(
         "ERROR: Can't set harware parameters. ${alsa.snd_strerror(result).cast<Utf8>().toDartString()}");
   }
 
   /* Resume information */
   final pcmName =
       (alsa.snd_pcm_name(pcmHandlePtr.value)).cast<Utf8>().toDartString();
-  print('PCM name: $pcmName');
-  print(
+  _printDebug('PCM name: $pcmName');
+  _printDebug(
       'PCM state: ${alsa.snd_pcm_state_name(alsa.snd_pcm_state(pcmHandlePtr.value)).cast<Utf8>().toDartString()}');
 
   alsa.snd_pcm_hw_params_get_channels(paramsPtr.value, tmpPtr);
@@ -91,11 +91,11 @@ Future<void> playSound(List<String> args) async {
   } else if (tmpPtr.value == 2) {
     channelType = '(stereo)';
   }
-  print('channels: ${tmpPtr.value} $channelType');
+  _printDebug('channels: ${tmpPtr.value} $channelType');
 
   alsa.snd_pcm_hw_params_get_rate(paramsPtr.value, tmpPtr, dirPtr);
-  print('rate: ${tmpPtr.value} bps');
-  print('seconds: $seconds');
+  _printDebug('rate: ${tmpPtr.value} bps');
+  _printDebug('seconds: $seconds');
 
   /* Allocate buffer to hold single period */
   alsa.snd_pcm_hw_params_get_period_size(paramsPtr.value, framesPtr, dirPtr);
@@ -105,7 +105,7 @@ Future<void> playSound(List<String> args) async {
 
   alsa.snd_pcm_hw_params_get_period_time(paramsPtr.value, tmpPtr, dirPtr);
 
-  print('time period: ${tmpPtr.value}');
+  _printDebug('time period: ${tmpPtr.value}');
 
   for (var loops = (seconds * 1000000) / tmpPtr.value; loops > 0; loops--) {
     for (var i = 0; i < buff_size; i++) {
@@ -113,22 +113,20 @@ Future<void> playSound(List<String> args) async {
       if (b != -1) {
         buff[i] = b;
       } else {
-        print('end of input file');
+        _printDebug('end of input file');
         loops = 0; //stop playback looping
         break;
       }
     }
-    stdout.write('.');
-
     var pcm = alsa.snd_pcm_writei(
         pcmHandlePtr.value, buff.cast<Void>(), framesPtr.value);
 
     final EPIPE = 32;
     if (pcm == -EPIPE) {
-      print('XRUN.');
+      _printDebug('XRUN.'); // should client get callback for this?
       alsa.snd_pcm_prepare(pcmHandlePtr.value);
     } else if (pcm < 0) {
-      print(
+      throw Exception(
           "ERROR. Can't write to PCM device. ${alsa.snd_strerror(pcm).cast<Utf8>().toDartString()}");
     }
   }
@@ -141,4 +139,10 @@ Future<void> playSound(List<String> args) async {
   calloc.free(ratePtr);
   calloc.free(framesPtr);
   calloc.free(dirPtr);
+}
+
+void _printDebug(String mesg) {
+  if (_debug) {
+    print(mesg);
+  }
 }
