@@ -58,24 +58,24 @@ Future<void> play(
   result = alsa.snd_pcm_hw_params_set_format(
       pcmHandlePtr.value, paramsPtr.value, SND_PCM_FORMAT_S16_LE);
   if (result < 0) {
-    throw Exception("ERROR: Can't set format.");
+    throw Exception("ERROR: Can't set playback format.");
   }
   result = alsa.snd_pcm_hw_params_set_channels(
       pcmHandlePtr.value, paramsPtr.value, channels);
   if (result < 0) {
-    throw Exception("ERROR: Can't set channels number.");
+    throw Exception("ERROR: Can't set number of channels.");
   }
   result = alsa.snd_pcm_hw_params_set_rate_near(
       pcmHandlePtr.value, paramsPtr.value, ratePtr, dirPtr);
   if (result < 0) {
-    throw Exception("ERROR: Can't set rate.");
+    throw Exception("ERROR: Can't set playback rate.");
   }
 
   /* Write parameters */
   result = alsa.snd_pcm_hw_params(pcmHandlePtr.value, paramsPtr.value);
   if (result < 0) {
     throw Exception(
-        "ERROR: Can't set harware parameters. ${alsa.snd_strerror(result).cast<Utf8>().toDartString()}");
+        "ERROR: Can't set hardware parameters. ${alsa.snd_strerror(result).cast<Utf8>().toDartString()}");
   }
 
   /* Resume information */
