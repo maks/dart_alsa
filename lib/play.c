@@ -113,6 +113,8 @@ int main(int argc, char **argv)
             return 0;
         }
 
+        printf(".");
+
         if (pcm = snd_pcm_writei(pcm_handle, buff, frames) == -EPIPE)
         {
             printf("XRUN.\n");

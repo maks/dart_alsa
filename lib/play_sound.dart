@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'alsa_generated_bindings.dart' as a;
 
@@ -8,7 +9,7 @@ const SND_PCM_FORMAT_S16_LE = 2;
 
 final alsa = a.ALSA(DynamicLibrary.open('libasound.so.2'));
 
-void playSound(List<String> args) {
+Future<void> playSound(List<String> args) async {
   print('play: ${args[0]}');
 
   final pcm_handle_ptr = calloc<Pointer<a.snd_pcm_>>();
@@ -106,20 +107,24 @@ void playSound(List<String> args) {
   alsa.snd_pcm_hw_params_get_period_size(
       paramsPointer.value, framesPtr, dirPtr);
 
-  final buff_size = 8 * channels * 2 /* 2 -> sample size */;
+  final buff_size = framesPtr.value * channels * 2 /* 2 -> sample size */;
   final buff = calloc<Uint8>(buff_size);
 
   alsa.snd_pcm_hw_params_get_period_time(paramsPointer.value, tmpPtr, dirPtr);
 
+  print('time period: ${tmpPtr.value}');
+
   for (var loops = (seconds * 1000000) / tmpPtr.value; loops > 0; loops--) {
     for (var i = 0; i < buff_size; i++) {
       final b = stdin.readByteSync();
+      if (b > 255) throw Exception('too big');
       if (b != -1) {
         buff[i] = b;
       } else {
         print('end of input file');
       }
     }
+    stdout.write('.');
 
     var pcm = alsa.snd_pcm_writei(
         pcm_handle_ptr.value, buff.cast<Void>(), framesPtr.value);
