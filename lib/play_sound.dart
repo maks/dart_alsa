@@ -10,6 +10,8 @@ final alsa = a.ALSA(DynamicLibrary.open('libasound.so.2'));
 
 final _debug = false;
 
+/// Play a stream of audio data.
+/// Data can be a WAV formatted file
 Future<void> play(
   Stream<List<int>> audioStream,
   int rate,
