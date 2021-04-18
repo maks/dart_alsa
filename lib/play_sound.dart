@@ -70,20 +70,32 @@ void playSound(List<String> args) {
     throw Exception("ERROR: Can't set rate.");
   }
 
+  /* Write parameters */
+  result = alsa.snd_pcm_hw_params(pcm_handle_ptr.value, paramsPointer.value);
+  if (result < 0) {
+    print(
+      "ERROR: Can't set harware parameters. ${alsa.snd_strerror(result).cast<Utf8>().toDartString()}",
+    );
+  }
+
   /* Resume information */
   final pcmName =
       (alsa.snd_pcm_name(pcm_handle_ptr.value)).cast<Utf8>().toDartString();
   print('PCM name: $pcmName');
 
+  print(
+      'PCM state: ${alsa.snd_pcm_state_name(alsa.snd_pcm_state(pcm_handle_ptr.value)).cast<Utf8>().toDartString()}');
+
   alsa.snd_pcm_hw_params_get_channels(paramsPointer.value, tmpPtr);
 
-  print('channels: ${tmpPtr.value}');
-
+  var channelType;
   if (tmpPtr.value == 1) {
-    print('(mono)');
+    channelType = '(mono)';
   } else if (tmpPtr.value == 2) {
-    print('(stereo)');
+    channelType = '(stereo)';
   }
+
+  print('channels: ${tmpPtr.value} $channelType');
 
   alsa.snd_pcm_hw_params_get_rate(paramsPointer.value, tmpPtr, dirPtr);
   print('rate: ${tmpPtr.value} bps');
@@ -94,32 +106,37 @@ void playSound(List<String> args) {
   alsa.snd_pcm_hw_params_get_period_size(
       paramsPointer.value, framesPtr, dirPtr);
 
-  final buff_size = channels * 2 /* 2 -> sample size */;
-  final buffPtr = calloc<Uint64>(buff_size);
+  final buff_size = 8 * channels * 2 /* 2 -> sample size */;
+  final buff = calloc<Uint8>(buff_size);
 
   alsa.snd_pcm_hw_params_get_period_time(paramsPointer.value, tmpPtr, dirPtr);
 
   for (var loops = (seconds * 1000000) / tmpPtr.value; loops > 0; loops--) {
-    // if (pcm = read(0, buff, buff_size) == 0)
-    //     {
-    //         printf("Early end of file.\n");
-    //         return 0;
-    //     }
+    for (var i = 0; i < buff_size; i++) {
+      final b = stdin.readByteSync();
+      if (b != -1) {
+        buff[i] = b;
+      } else {
+        print('end of input file');
+      }
+    }
 
-    //     if (pcm = snd_pcm_writei(pcm_handle, buff, frames) == -EPIPE)
-    //     {
-    //         printf("XRUN.\n");
-    //         snd_pcm_prepare(pcm_handle);
-    //     }
-    //     else if (pcm < 0)
-    //     {
-    //         printf("ERROR. Can't write to PCM device. %s\n", snd_strerror(pcm));
-    //     }
+    var pcm = alsa.snd_pcm_writei(
+        pcm_handle_ptr.value, buff.cast<Void>(), framesPtr.value);
+
+    final EPIPE = 32;
+    if (pcm == -EPIPE) {
+      print('XRUN.');
+      alsa.snd_pcm_prepare(pcm_handle_ptr.value);
+    } else if (pcm < 0) {
+      print(
+          "ERROR. Can't write to PCM device. ${alsa.snd_strerror(pcm).cast<Utf8>().toDartString()}");
+    }
   }
 
   alsa.snd_pcm_drain(pcm_handle_ptr.value);
   alsa.snd_pcm_close(pcm_handle_ptr.value);
-  calloc.free(buffPtr);
+  calloc.free(buff);
 
   exit(0);
 }
