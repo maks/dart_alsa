@@ -7,6 +7,17 @@ Settings for ffigen are in `pubspec.yaml`, to regenerate the binding code run:
 `dart run ffigen`
 
 
+## Testing
+
+check wav file properties:
+`mediainfo filename.wav`
+
+ref: https://mediaarea.net/en/MediaInfo
+
+run example:
+`dart example/playsound.dart 44100 2 < refs/test1.wav`
+
+
 ## Acknowledgements
 
 Initial playback implementation based on 

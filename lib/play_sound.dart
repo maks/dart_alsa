@@ -8,16 +8,14 @@ const SND_PCM_FORMAT_S16_LE = 2;
 
 final alsa = a.ALSA(DynamicLibrary.open('libasound.so.2'));
 
-final _debug = false;
+final _debug = true;
 
-/// Play a stream of audio data.
-/// Data can be a WAV formatted file
-Future<void> play(
-  Stream<List<int>> audioStream,
+/// Play buffer of audio
+void playBuffer(
+  List<int> audioData,
   int rate,
   int channels,
-  int seconds,
-) async {
+) {
   final pcmHandlePtr = calloc<Pointer<a.snd_pcm_>>();
 
   // https://github.com/dart-lang/ffigen/issues/72#issuecomment-672060509
@@ -97,7 +95,6 @@ Future<void> play(
 
   alsa.snd_pcm_hw_params_get_rate(paramsPtr.value, tmpPtr, dirPtr);
   _printDebug('rate: ${tmpPtr.value} bps');
-  _printDebug('seconds: $seconds');
 
   /* Allocate buffer to hold single period */
   alsa.snd_pcm_hw_params_get_period_size(paramsPtr.value, framesPtr, dirPtr);
@@ -108,6 +105,8 @@ Future<void> play(
   alsa.snd_pcm_hw_params_get_period_time(paramsPtr.value, tmpPtr, dirPtr);
 
   _printDebug('time period: ${tmpPtr.value}');
+
+  final seconds = (audioData.length / 44100);
 
   for (var loops = (seconds * 1000000) / tmpPtr.value; loops > 0; loops--) {
     for (var i = 0; i < buff_size; i++) {
