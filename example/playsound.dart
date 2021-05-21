@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dart_alsa/play_sound.dart';
+import 'package:dart_alsa/play_audio.dart';
 
 void main(List<String> args) {
   final rate = int.parse(args[0]);
