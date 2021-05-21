@@ -8,7 +8,7 @@ void main(List<String> args) {
 
   final buffer = <int>[];
 
-  for (var i = 0; i < (channels * 44100); i++) {
+  for (var i = 0; i < (channels * rate); i++) {
     buffer.add(stdin.readByteSync());
   }
 
