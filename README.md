@@ -1,5 +1,12 @@
 # Dart FFI Binding to the ALSA sound library.
 
+## Regenerating the Dart ffi binding code
+
+Settings for ffigen are in `pubspec.yaml`, to regenerate the binding code run:
+
+`dart run ffigen`
+
+
 ## Acknowledgements
 
 Initial playback implementation based on 

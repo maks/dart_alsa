@@ -26143,7 +26143,10 @@ class ALSA {
       _snd_midi_event_decode_ptr.asFunction<_dart_snd_midi_event_decode>();
 }
 
-class _fsid_t_ extends ffi.Opaque {}
+class _fsid_t_ extends ffi.Struct {
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Int32> _val_;
+}
 
 class _mbstate_t_ extends ffi.Opaque {}
 
@@ -26157,7 +26160,76 @@ class IO_codecvt_ extends ffi.Opaque {}
 
 class IO_wide_data_ extends ffi.Opaque {}
 
-class IO_FILE_ extends ffi.Opaque {}
+class IO_FILE_ extends ffi.Struct {
+  @ffi.Int32()
+  external int flags_;
+
+  external ffi.Pointer<ffi.Int8> IO_read_ptr_;
+
+  external ffi.Pointer<ffi.Int8> IO_read_end_;
+
+  external ffi.Pointer<ffi.Int8> IO_read_base_;
+
+  external ffi.Pointer<ffi.Int8> IO_write_base_;
+
+  external ffi.Pointer<ffi.Int8> IO_write_ptr_;
+
+  external ffi.Pointer<ffi.Int8> IO_write_end_;
+
+  external ffi.Pointer<ffi.Int8> IO_buf_base_;
+
+  external ffi.Pointer<ffi.Int8> IO_buf_end_;
+
+  external ffi.Pointer<ffi.Int8> IO_save_base_;
+
+  external ffi.Pointer<ffi.Int8> IO_backup_base_;
+
+  external ffi.Pointer<ffi.Int8> IO_save_end_;
+
+  external ffi.Pointer<IO_marker_> markers_;
+
+  external ffi.Pointer<IO_FILE_> chain_;
+
+  @ffi.Int32()
+  external int fileno_;
+
+  @ffi.Int32()
+  external int flags2_;
+
+  @ffi.Int64()
+  external int old_offset_;
+
+  @ffi.Uint16()
+  external int cur_column_;
+
+  @ffi.Int8()
+  external int vtable_offset_;
+
+  @ffi.Array.multi([1])
+  external ffi.Array<ffi.Int8> shortbuf_;
+
+  external ffi.Pointer<ffi.Void> lock_;
+
+  @ffi.Int64()
+  external int offset_;
+
+  external ffi.Pointer<IO_codecvt_> codecvt_;
+
+  external ffi.Pointer<IO_wide_data_> wide_data_;
+
+  external ffi.Pointer<IO_FILE_> freeres_list_;
+
+  external ffi.Pointer<ffi.Void> freeres_buf_;
+
+  @ffi.Int32()
+  external int _pad5_;
+
+  @ffi.Int32()
+  external int mode_;
+
+  @ffi.Int8()
+  external int unused2_;
+}
 
 class div_t extends ffi.Struct {
   @ffi.Int32()
@@ -26183,7 +26255,10 @@ class lldiv_t extends ffi.Struct {
   external int rem;
 }
 
-class _sigset_t_ extends ffi.Opaque {}
+class _sigset_t_ extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Uint64> _val_;
+}
 
 class timeval extends ffi.Struct {
   @ffi.Int64()
@@ -26201,7 +26276,10 @@ class timespec extends ffi.Struct {
   external int tv_nsec;
 }
 
-class fd_set extends ffi.Opaque {}
+class fd_set extends ffi.Struct {
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Int64> _fds_bits_;
+}
 
 class _pthread_list_t_ extends ffi.Struct {
   external ffi.Pointer<_pthread_list_t_> _prev_;
@@ -26238,9 +26316,60 @@ class _pthread_mutex_s_ extends ffi.Struct {
   external _pthread_list_t_ _list_;
 }
 
-class _pthread_rwlock_arch_t_ extends ffi.Opaque {}
+class _pthread_rwlock_arch_t_ extends ffi.Struct {
+  @ffi.Uint32()
+  external int _readers_;
 
-class _pthread_cond_s_ extends ffi.Opaque {}
+  @ffi.Uint32()
+  external int _writers_;
+
+  @ffi.Uint32()
+  external int _wrphase_futex_;
+
+  @ffi.Uint32()
+  external int _writers_futex_;
+
+  @ffi.Uint32()
+  external int _pad3_;
+
+  @ffi.Uint32()
+  external int _pad4_;
+
+  @ffi.Int32()
+  external int _cur_writer_;
+
+  @ffi.Int32()
+  external int _shared_;
+
+  @ffi.Int8()
+  external int _rwelision_;
+
+  @ffi.Array.multi([7])
+  external ffi.Array<ffi.Uint8> _pad1_;
+
+  @ffi.Uint64()
+  external int _pad2_;
+
+  @ffi.Uint32()
+  external int _flags_;
+}
+
+class _pthread_cond_s_ extends ffi.Struct {
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Uint32> _g_refs_;
+
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Uint32> _g_size_;
+
+  @ffi.Uint32()
+  external int _g1_orig_size_;
+
+  @ffi.Uint32()
+  external int _wrefs_;
+
+  @ffi.Array.multi([2])
+  external ffi.Array<ffi.Uint32> _g_signals_;
+}
 
 class _once_flag_ extends ffi.Struct {
   @ffi.Int32()
@@ -26266,11 +26395,38 @@ class random_data extends ffi.Struct {
   external ffi.Pointer<ffi.Int32> end_ptr;
 }
 
-class drand48_data extends ffi.Opaque {}
+class drand48_data extends ffi.Struct {
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.Uint16> _x_;
+
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.Uint16> _old_x_;
+
+  @ffi.Uint16()
+  external int _c_;
+
+  @ffi.Uint16()
+  external int _init_;
+
+  @ffi.Uint64()
+  external int _a_;
+}
 
 class _locale_data_ extends ffi.Opaque {}
 
-class _locale_struct_ extends ffi.Opaque {}
+class _locale_struct_ extends ffi.Struct {
+  @ffi.Array.multi([13])
+  external ffi.Array<ffi.Pointer<_locale_data_>> _locales_;
+
+  external ffi.Pointer<ffi.Uint16> _ctype_b_;
+
+  external ffi.Pointer<ffi.Int32> _ctype_tolower_;
+
+  external ffi.Pointer<ffi.Int32> _ctype_toupper_;
+
+  @ffi.Array.multi([13])
+  external ffi.Array<ffi.Pointer<ffi.Int8>> _names_;
+}
 
 class flock extends ffi.Struct {
   @ffi.Int16()
@@ -26289,7 +26445,49 @@ class flock extends ffi.Struct {
   external int l_pid;
 }
 
-class stat extends ffi.Opaque {}
+class stat extends ffi.Struct {
+  @ffi.Uint64()
+  external int st_dev;
+
+  @ffi.Uint64()
+  external int st_ino;
+
+  @ffi.Uint64()
+  external int st_nlink;
+
+  @ffi.Uint32()
+  external int st_mode;
+
+  @ffi.Uint32()
+  external int st_uid;
+
+  @ffi.Uint32()
+  external int st_gid;
+
+  @ffi.Int32()
+  external int _pad0_;
+
+  @ffi.Uint64()
+  external int st_rdev;
+
+  @ffi.Int64()
+  external int st_size;
+
+  @ffi.Int64()
+  external int st_blksize;
+
+  @ffi.Int64()
+  external int st_blocks;
+
+  external timespec st_atim;
+
+  external timespec st_mtim;
+
+  external timespec st_ctim;
+
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.Int64> _glibc_reserved_;
+}
 
 class pollfd extends ffi.Struct {
   @ffi.Int32()
@@ -26650,9 +26848,20 @@ abstract class snd_pcm_chmap_position {
   static const int SND_CHMAP_LAST = 36;
 }
 
-class snd_pcm_chmap_t extends ffi.Opaque {}
+class snd_pcm_chmap_t extends ffi.Struct {
+  @ffi.Uint32()
+  external int channels;
 
-class snd_pcm_chmap_query_t extends ffi.Opaque {}
+  @ffi.Array.multi([0])
+  external ffi.Array<ffi.Uint32> pos;
+}
+
+class snd_pcm_chmap_query_t extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
+
+  external snd_pcm_chmap_t map;
+}
 
 abstract class snd_pcm_hook_type_t {
   static const int SND_PCM_HOOK_TYPE_HW_PARAMS = 0;
@@ -26838,7 +27047,19 @@ abstract class snd_hwdep_type_t {
 
 class snd_hwdep_ extends ffi.Opaque {}
 
-class snd_aes_iec958_t extends ffi.Opaque {}
+class snd_aes_iec958_t extends ffi.Struct {
+  @ffi.Array.multi([24])
+  external ffi.Array<ffi.Uint8> status;
+
+  @ffi.Array.multi([147])
+  external ffi.Array<ffi.Uint8> subcode;
+
+  @ffi.Uint8()
+  external int pad;
+
+  @ffi.Array.multi([4])
+  external ffi.Array<ffi.Uint8> dig_subframe;
+}
 
 class snd_ctl_card_info_ extends ffi.Opaque {}
 
@@ -27042,12 +27263,31 @@ class snd_seq_ev_note_t extends ffi.Struct {
   external int duration;
 }
 
-class snd_seq_ev_ctrl_t extends ffi.Opaque {}
+class snd_seq_ev_ctrl_t extends ffi.Struct {
+  @ffi.Uint8()
+  external int channel;
 
-class snd_seq_ev_raw8_t extends ffi.Opaque {}
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.Uint8> unused;
 
-class snd_seq_ev_raw32_t extends ffi.Opaque {}
+  @ffi.Uint32()
+  external int param;
 
+  @ffi.Int32()
+  external int value;
+}
+
+class snd_seq_ev_raw8_t extends ffi.Struct {
+  @ffi.Array.multi([12])
+  external ffi.Array<ffi.Uint8> d;
+}
+
+class snd_seq_ev_raw32_t extends ffi.Struct {
+  @ffi.Array.multi([3])
+  external ffi.Array<ffi.Uint32> d;
+}
+
+@ffi.Packed(1)
 class snd_seq_ev_ext extends ffi.Struct {
   @ffi.Uint32()
   external int len;
