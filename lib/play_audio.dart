@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'alsa_generated_bindings.dart' as a;
@@ -8,7 +9,8 @@ const SND_PCM_FORMAT_S16_LE = 2;
 
 final alsa = a.ALSA(DynamicLibrary.open('libasound.so.2'));
 
-final _debug = true;
+Map<String, String> envVars = Platform.environment;
+final _debug = envVars['DART_ALSA_DEBUG'] != null;
 
 /// Play buffer of audio
 void playBuffer(
