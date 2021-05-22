@@ -1,5 +1,5 @@
 import 'dart:ffi';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'alsa_generated_bindings.dart' as a;
 
@@ -12,7 +12,7 @@ final _debug = true;
 
 /// Play buffer of audio
 void playBuffer(
-  List<int> audioData,
+  Uint8List audioData,
   int rate,
   int channels,
 ) {
@@ -100,25 +100,25 @@ void playBuffer(
   alsa.snd_pcm_hw_params_get_period_size(paramsPtr.value, framesPtr, dirPtr);
 
   final buff_size = framesPtr.value * channels * 2 /* 2 -> sample size */;
+  _printDebug('set buffer size: $buff_size');
   final buff = calloc<Uint8>(buff_size);
 
   alsa.snd_pcm_hw_params_get_period_time(paramsPtr.value, tmpPtr, dirPtr);
 
   _printDebug('time period: ${tmpPtr.value}');
 
-  final seconds = (audioData.length / 44100);
-
-  for (var loops = (seconds * 1000000) / tmpPtr.value; loops > 0; loops--) {
+  // TODO: use nicer way of reading buff_size chunks out of audioData
+  final bufferCount = (audioData.length ~/ buff_size);
+  for (var j = 0; j <= bufferCount; j++) {
     for (var i = 0; i < buff_size; i++) {
-      final b = stdin.readByteSync();
-      if (b != -1) {
-        buff[i] = b;
-      } else {
-        _printDebug('end of input file');
-        loops = 0; //stop playback looping
+      final index = i + (j * buff_size);
+      if (index > audioData.length - 1) {
         break;
       }
+      final b = audioData[index];
+      buff[i] = b;
     }
+
     var pcm = alsa.snd_pcm_writei(
         pcmHandlePtr.value, buff.cast<Void>(), framesPtr.value);
 

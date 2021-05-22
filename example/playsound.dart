@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dart_alsa/play_audio.dart';
 
@@ -8,11 +9,14 @@ void main(List<String> args) {
 
   final buffer = <int>[];
 
-  for (var i = 0; i < (channels * rate); i++) {
-    buffer.add(stdin.readByteSync());
+  var b = 0;
+  while (b != -1) {
+    b = stdin.readByteSync();
+    buffer.add(b);
   }
+  print('buffer len: ${buffer.length}');
 
-  playBuffer(buffer, rate, channels);
+  playBuffer(Uint8List.fromList(buffer), rate, channels);
 
   exit(0);
 }
